@@ -20,5 +20,6 @@ async def process_secure_prompt(payload: PromptRequest):
             entities_masked_count=0, # Baseline placeholder
             timestamp=datetime.now(timezone.utc)
         )
+    
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal gateway error: {str(e)}")
