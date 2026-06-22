@@ -17,7 +17,7 @@ class PromptRequest(BaseModel):
     model_config = {
         "json_schema_extra": {
             "example": {
-                "prompt": "Can you review this contract for Sipho Ndlovu, ID number 0101015009087? You can email him at lavanya@example.com.",
+                "prompt": "Can you review this contract for Lavanya van Wyk, ID number 0101015009087? You can email her at lavanya@example.com.",
                 "user_id": "usr_94823"
             }
         }
