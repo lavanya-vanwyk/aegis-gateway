@@ -10,6 +10,6 @@ class Settings(BaseSettings):
     # SecretStr automatically masks sensitive values when printing/logging
     LLM_API_KEY: SecretStr
     # Configuration block for Pydantic Settings
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=".env.example", extra="ignore")
        
 settings = Settings()
