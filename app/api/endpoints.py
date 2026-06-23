@@ -26,4 +26,3 @@ async def process_secure_prompt(payload: PromptRequest):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal gateway error: {str(e)}")
-

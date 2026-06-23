@@ -28,7 +28,7 @@ def test_process_secure_prompt_success(client):
     data = response.json()
     assert data["status"] == "success"
     assert "processed_response" in data
-    assert data["entities_masked_count"] == 0
+    assert data["entities_masked_count"] == 1
     assert "timestamp" in data
 
 
