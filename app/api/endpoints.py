@@ -1,25 +1,29 @@
 from fastapi import APIRouter, HTTPException
 from app.api.schemas import PromptRequest, PromptResponse
 from datetime import datetime, timezone
-
+from app.services.masking import PrivacyMaskingService
 
 router = APIRouter(prefix="/v1/privacy", tags=["Privacy Gateway"])
+masking_service = PrivacyMaskingService()
 
 @router.post("/chat", response_model=PromptResponse)
 async def process_secure_prompt(payload: PromptRequest):
     try:
-    # TODO: pass through Presidio Masking Engine
     # TODO: store tokens in Redis Vault
     # TODO: send anonymized text to LLM and rehydrate
-    
-    # temporary mock response mimicking a successful round-trip execution
-        mock_llm_reply = f"Mock processing completed for user {payload.user_id}."
+        masking_result = masking_service.mask_text(payload.prompt)
+
+        anonymized_prompt = masking_result["anonymized_text"]
+        entities_count = masking_result["entities_masked_count"]
+
+        mock_llm_reply = f"Anonymized Prompt: {anonymized_prompt}."
         return PromptResponse(
             status="success",
             processed_response=mock_llm_reply,
-            entities_masked_count=0, # Baseline placeholder
+            entities_masked_count=entities_count,
             timestamp=datetime.now(timezone.utc)
         )
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal gateway error: {str(e)}")
+
