@@ -49,18 +49,19 @@ class PrivacyMaskingService:
 
     def south_african_pii_recognizer(self):
         """
-        Method that adds custom regex rules for South African PII like ID numbers,
-        passport numbers, South African mobile numbers, vehicle registrations, and SARS UIF
-        numbers
-
+        Method that adds custom regex rules for South African PII using
+        strict non-capturing groups to prevent overlapping entity counts.
         """
+
         sa_patterns = [
             PatternRecognizer(
                 supported_entity="ZA_ID_NUMBER",
                 patterns=[
                     Pattern(
                         name="ZA_ID_NUMBER",
-                        regex=r"\b(([0-9]{2})(0|1)([0-9])([0-3])([0-9]))([ ]?)(([0-9]{4})([ ]?)([0-1][8]([ ]?)[0-9]))\b",
+                        # Non-capturing groups (?:) guarantee only 1 entity is counted.
+                        # Strictly enforces YY MM DD format + 4 digits + 08/18 + 1 digit.
+                        regex=r"\b(?:\d{2})(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])(?:[\s]?\d{4})(?:[\s]?[01]8(?:[\s]?)\d)\b",
                         score=0.99,
                     )
                 ],
@@ -70,8 +71,8 @@ class PrivacyMaskingService:
                 patterns=[
                     Pattern(
                         name="ZA_PHONE_NUMBER",
-                        # Replaced \b with negative lookbehind to allow + symbol
-                        regex=r"(?<!\d)(\+27|0)[6-8]\d{8}\b",
+                        # Strictly expects 9 digits after the prefix, ignoring spaces/hyphens.
+                        regex=r"(?<!\d)(?:\+27|27|0)(?:[\s\-]?\d){9}\b",
                         score=0.99,
                     )
                 ],
@@ -89,7 +90,6 @@ class PrivacyMaskingService:
                 patterns=[
                     Pattern(
                         name="ZA_VEHICLE_REG",
-                        # Removed the dangerously broad catch-all branch at the end
                         regex=r"\b(?:[B-DF-HJ-NP-TV-Z]{2}\s?\d{2}\s?[B-DF-HJ-NP-TV-Z]{2}(?:\s?GP)?|[A-Z]{3}\s?\d{3}\s?(?:EC|FS|L|MP|NC|NW|WP)|[A-Z]{1,3}\s?\d{1,6}(?:\s?ZN)?|[A-Z]{2}\s?\d{2}\s?[A-Z]{2}\s?ZN)\b",
                         score=0.99,
                     )
@@ -99,7 +99,14 @@ class PrivacyMaskingService:
                 supported_entity="ZA_UIF_NUM",
                 patterns=[Pattern(name="ZA_UIF_NUM", regex=r"\bU\d{9}\b", score=0.99)],
             ),
+            PatternRecognizer(
+                supported_entity="ZA_TAX_NUMBER",
+                patterns=[
+                    Pattern(name="ZA_TAX_NUMBER", regex=r"\b[0-39]\d{9}\b", score=0.99)
+                ],
+            ),
         ]
+
         for pattern in sa_patterns:
             self.analyzer.registry.add_recognizer(pattern)
 
