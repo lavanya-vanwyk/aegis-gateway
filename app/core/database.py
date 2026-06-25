@@ -14,17 +14,11 @@ class RedisConnectionManager:
             encoding="utf-8",
         )
 
-        # async_pool = aioredis.ConnectionPool(
-        #     host="localhost", port=6379, db=0, decode_responses=True, max_connections=20
-        # )
+        await self.client.ping()
 
-        # async_client = aioredis.Redis(connection_pool=async_pool)
+    async def disconnect(self):
+        if self.client:
+            await self.client.aclose()
 
-        # await async_client.set("metric:hits", "42")
-        # value = await async_client.get("metric:hits")
-        # print(value)
 
-        # Close the pool completely during application shutdown
-        await async_client.aclose()
-
-    asyncio.run(main())
+redis_manager = RedisConnectionManager()
