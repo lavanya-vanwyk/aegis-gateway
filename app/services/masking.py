@@ -7,7 +7,9 @@ from presidio_analyzer import (
     Pattern,
     RecognizerRegistry,
 )
+
 from presidio_anonymizer import AnonymizerEngine
+from app.services.storage import TokenVaultService
 
 
 class PrivacyMaskingService:
@@ -16,8 +18,6 @@ class PrivacyMaskingService:
         Initializes the Presidio Analyzer and Anonymizer engines.
         The heavy spaCy language models are loaded into memory here once.
 
-        US_BANK_NUMBER trips the ZA_ID check, and is removed for the
-        purposes of this masker
         """
 
         # Custom lowering of US recognizer scores as Presidio defaults to them over the custom ZA recognizers
@@ -45,7 +45,7 @@ class PrivacyMaskingService:
 
         self.analyzer = AnalyzerEngine(registry=registry)
         self.south_african_pii_recognizer()
-        self.anonymizer = AnonymizerEngine()
+        self.vault = TokenVaultService()
 
     def south_african_pii_recognizer(self):
         """
@@ -110,7 +110,7 @@ class PrivacyMaskingService:
         for pattern in sa_patterns:
             self.analyzer.registry.add_recognizer(pattern)
 
-    def mask_text(self, text: str) -> Dict[str, Any]:
+    async def mask_text(self, text: str) -> Dict[str, Any]:
         """
         Analyzes the input text for default PII entities and replaces them
         with standardized tokens.
@@ -136,14 +136,28 @@ class PrivacyMaskingService:
             text=text, language="en", entities=allowed_entities
         )
 
-        anonymized_result = self.anonymizer.anonymize(
-            text=text, analyzer_results=analysis_results
-        )
+        sorted_results = sorted(analysis_results, key=lambda x: x.start, reverse=True)
+        
+        anonymized_text = text
+        
+        
+        for match in sorted_results:
+            original_value = text[match.start:match.end]
+            
+            # generate a unique token for each
+            unique_id = uuid.uuid4().hex[:6]
+            token_id = f"<{match.entity_type}_{unique_id}>"
+            
+            
+            await self.vault.store_mapping(token_id=token_id, original_text=original_value)
+            
+            
+            anonymized_text = (
+                anonymized_text[:match.start] + token_id + anonymized_text[match.end:]
+            )
 
         return {
-            "anonymized_text": anonymized_result.text,
-            "entities_masked_count": len(analysis_results),
+            "anonymized_text": anonymized_text,
+            "entities_masked_count": len(sorted_results),
         }
 
-
-PrivacyMaskingService()
