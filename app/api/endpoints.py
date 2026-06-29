@@ -1,6 +1,8 @@
+from fastapi import APIRouter, HTTPException, Depends
 from fastapi import APIRouter, HTTPException
 from app.api.schemas import PromptRequest, PromptResponse
 from app.services.masking import PrivacyMaskingService
+from app.core.security import get_api_key
 from datetime import datetime, timezone
 
 router = APIRouter(prefix="/v1/privacy", tags=["Privacy Gateway"])
@@ -10,7 +12,9 @@ masking_service = PrivacyMaskingService()
 
 
 @router.post("/chat", response_model=PromptResponse)
-async def process_secure_prompt(payload: PromptRequest):
+async def process_secure_prompt(
+    payload: PromptRequest, api_key: str = Depends(get_api_key)
+):
     try:
 
         masking_result = await masking_service.mask_text(payload.prompt)
