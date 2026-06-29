@@ -1,4 +1,5 @@
 import uuid
+import re
 from rich import print
 
 from typing import Dict, Any
@@ -161,3 +162,27 @@ class PrivacyMaskingService:
             "anonymized_text": anonymized_text,
             "entities_masked_count": len(sorted_results),
         }
+
+    async def rehydrate_text(self, text: str) -> str:
+        """
+        Scans the LLM response for synthetic tokens and replaces them
+        with the original PII fetched from the Redis Vault.
+        """
+        if not text:
+            return text
+
+        token_pattern = r"<[A-Z_]+_[a-f0-9]{6}>"
+
+        unique_tokens = set(re.findall(token_pattern, text))
+        rehydrated_text = text
+
+        for token in unique_tokens:
+            # fetch and delete the mapping from the Vault
+            original_value = await self.vault.retrieve_mapping(token)
+
+            if original_value:
+                rehydrated_text = rehydrated_text.replace(token, original_value)
+            else:
+                pass
+
+        return rehydrated_text
