@@ -1,3 +1,4 @@
+import time
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi import APIRouter, HTTPException
 
@@ -6,6 +7,7 @@ from app.services.masking import PrivacyMaskingService
 from app.core.security import get_api_key
 from app.services.rate_limiter import check_rate_limit
 from app.core.logger import audit_logger
+from app.services.llm import llm_service
 
 from datetime import datetime, timezone
 
@@ -24,14 +26,17 @@ async def verify_and_rate_limit(api_key: str = Depends(get_api_key)):
 async def process_secure_prompt(
     payload: PromptRequest, api_key: str = Depends(verify_and_rate_limit)
 ):
+    start_time = time.time()
+
     try:
-
         masking_result = await masking_service.mask_text(payload.prompt)
-
         anonymized_prompt = masking_result["anonymized_text"]
         entities_count = masking_result["entities_masked_count"]
 
-        mock_llm_reply = f"System received safe prompt: {anonymized_prompt}"
+        llm_reply = await llm_service.generate_response(anonymized_prompt)
+
+        final_response = await masking_service.rehydrate_text(llm_reply)
+        process_time_ms = round((time.time() - start_time) * 1000)
 
         audit_logger.info(
             "prompt_processed",
@@ -39,17 +44,20 @@ async def process_secure_prompt(
                 "audit_data": {
                     "user_id": payload.user_id,
                     "entities_masked_count": entities_count,
+                    "process_time_ms": process_time_ms,
                     "status": "success",
                     "route": "/v1/privacy/chat",
                 }
             },
         )
+
         return PromptResponse(
             status="success",
-            processed_response=mock_llm_reply,
+            processed_response=final_response,
             entities_masked_count=entities_count,
             timestamp=datetime.now(timezone.utc),
         )
+
     except Exception as e:
         audit_logger.error(
             "prompt_failed",
