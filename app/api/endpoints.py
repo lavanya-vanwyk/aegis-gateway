@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException
 from app.api.schemas import PromptRequest, PromptResponse
 from app.services.masking import PrivacyMaskingService
 from app.core.security import get_api_key
+from app.services.rate_limiter import check_rate_limit
 from datetime import datetime, timezone
 
 router = APIRouter(prefix="/v1/privacy", tags=["Privacy Gateway"])
@@ -11,9 +12,14 @@ router = APIRouter(prefix="/v1/privacy", tags=["Privacy Gateway"])
 masking_service = PrivacyMaskingService()
 
 
+async def verify_and_rate_limit(api_key: str = Depends(get_api_key)):
+    await check_rate_limit(api_key)
+    return api_key
+
+
 @router.post("/chat", response_model=PromptResponse)
 async def process_secure_prompt(
-    payload: PromptRequest, api_key: str = Depends(get_api_key)
+    payload: PromptRequest, api_key: str = Depends(verify_and_rate_limit)
 ):
     try:
 
