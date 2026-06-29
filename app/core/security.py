@@ -2,7 +2,6 @@ from fastapi import Security, HTTPException, status
 from fastapi.security import APIKeyHeader
 from app.core.config import settings
 
-# Define the exact name of the header the client must send
 API_KEY_NAME = "X-API-Key"
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
 

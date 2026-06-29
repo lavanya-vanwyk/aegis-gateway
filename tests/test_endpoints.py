@@ -19,11 +19,12 @@ def test_health_check(client):
 def test_process_secure_prompt_success(client):
     """
     GIVEN a valid PromptRequest payload
-    WHEN a POST request is made to /v1/privacy/chat
+    WHEN a POST request is made to /v1/privacy/chat with a valid API key
     THEN it should return a 200 status and have PromptResponse schema
     """
     payload = {"prompt": "Hello, my name is Alice.", "user_id": "usr_test_123"}
-    response = client.post("/v1/privacy/chat", json=payload)
+    headers = {"X-API-Key": "fake_api_key"}
+    response = client.post("/v1/privacy/chat", json=payload, headers=headers)
 
     assert response.status_code == 200
 
@@ -48,8 +49,11 @@ def test_process_secure_prompt_validation_failures(
 ):
     """
     GIVEN invalid payloads
-    WHEN a POST request is made to /v1/privacy/chat
-    THEN the gateway should automatically reject it with a 422 Unprocessable Entity status
+    WHEN a POST request is made to /v1/privacy/chat with a valid API key
+    THEN the gateway should automatically reject it with a 422 status
     """
-    response = client.post("/v1/privacy/chat", json=invalid_payload)
+
+    headers = {"X-API-Key": "fake_api_key"}
+    response = client.post("/v1/privacy/chat", json=invalid_payload, headers=headers)
+
     assert response.status_code == expected_status

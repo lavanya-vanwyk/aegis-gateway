@@ -1,9 +1,12 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi import APIRouter, HTTPException
+
 from app.api.schemas import PromptRequest, PromptResponse
 from app.services.masking import PrivacyMaskingService
 from app.core.security import get_api_key
 from app.services.rate_limiter import check_rate_limit
+from app.core.logger import audit_logger
+
 from datetime import datetime, timezone
 
 router = APIRouter(prefix="/v1/privacy", tags=["Privacy Gateway"])
@@ -30,6 +33,17 @@ async def process_secure_prompt(
 
         mock_llm_reply = f"System received safe prompt: {anonymized_prompt}"
 
+        audit_logger.info(
+            "prompt_processed",
+            extra={
+                "audit_data": {
+                    "user_id": payload.user_id,
+                    "entities_masked_count": entities_count,
+                    "status": "success",
+                    "route": "/v1/privacy/chat",
+                }
+            },
+        )
         return PromptResponse(
             status="success",
             processed_response=mock_llm_reply,
@@ -37,4 +51,14 @@ async def process_secure_prompt(
             timestamp=datetime.now(timezone.utc),
         )
     except Exception as e:
+        audit_logger.error(
+            "prompt_failed",
+            extra={
+                "audit_data": {
+                    "user_id": payload.user_id if payload else "unknown",
+                    "status": "error",
+                    "error_detail": str(e),
+                }
+            },
+        )
         raise HTTPException(status_code=500, detail=f"Internal gateway error: {str(e)}")
