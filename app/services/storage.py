@@ -15,7 +15,7 @@ class TokenVaultService:
         if not client:
             raise RuntimeError("Redis client pool is not initialized.")
 
-        await client.setex(name=token_id, time=self.ttl_seconds, value=original_text)
+        await client.set(name=token_id, value=original_text, ex=self.ttl_seconds)
 
     async def retrieve_mapping(self, token_id: str) -> str | None:
         """

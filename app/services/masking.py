@@ -1,3 +1,4 @@
+import uuid
 from rich import print
 
 from typing import Dict, Any
@@ -127,6 +128,7 @@ class PrivacyMaskingService:
             "ZA_PHONE_NUMBER",
             "ZA_PASSPORT_NUM",
             "ZA_UIF_NUM",
+            "ZA_TAX_NUMBER",
         ]
 
         if not text.strip():
@@ -137,27 +139,25 @@ class PrivacyMaskingService:
         )
 
         sorted_results = sorted(analysis_results, key=lambda x: x.start, reverse=True)
-        
+
         anonymized_text = text
-        
-        
+
         for match in sorted_results:
-            original_value = text[match.start:match.end]
-            
+            original_value = text[match.start : match.end]
+
             # generate a unique token for each
             unique_id = uuid.uuid4().hex[:6]
             token_id = f"<{match.entity_type}_{unique_id}>"
-            
-            
-            await self.vault.store_mapping(token_id=token_id, original_text=original_value)
-            
-            
+
+            await self.vault.store_mapping(
+                token_id=token_id, original_text=original_value
+            )
+
             anonymized_text = (
-                anonymized_text[:match.start] + token_id + anonymized_text[match.end:]
+                anonymized_text[: match.start] + token_id + anonymized_text[match.end :]
             )
 
         return {
             "anonymized_text": anonymized_text,
             "entities_masked_count": len(sorted_results),
         }
-
