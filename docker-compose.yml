@@ -6,10 +6,13 @@ services:
       - "8000:8000"
     env_file:
       - .env
+    volumes:
+      - .:/app
     environment:
-      - REDIS_HOST=redis_vault 
+      - REDIS_HOST=redis_vault
     depends_on:
       - redis_vault
+      - ollama_server
     networks:
       - aegis_net
 
@@ -20,6 +23,19 @@ services:
     networks:
       - aegis_net
 
+  ollama_server:
+    image: ollama/ollama
+    container_name: gateway_llm
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - aegis_net
+
 networks:
   aegis_net:
     driver: bridge
+
+volumes:
+  ollama_data:

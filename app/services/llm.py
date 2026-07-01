@@ -4,7 +4,9 @@ from app.core.config import settings
 
 class LLMService:
     def __init__(self):
-        self.client = AsyncOpenAI(api_key=settings.LLM_API_KEY)
+        self.client = AsyncOpenAI(
+            base_url="http://ollama_server:11434/v1", api_key="ollama"
+        )
         self.system_prompt = (
             "You are a highly capable AI assistant securely processing data behind a privacy gateway. "
             "The user prompts you receive will contain anonymized tokens in the format <ENTITY_TYPE_abc123>. "
@@ -18,7 +20,7 @@ class LLMService:
         """
         try:
             response = await self.client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="llama3",
                 messages=[
                     {"role": "system", "content": self.system_prompt},
                     {"role": "user", "content": prompt},

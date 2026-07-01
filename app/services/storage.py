@@ -24,7 +24,6 @@ class TokenVaultService:
             raise RuntimeError("Redis client pool is not initialized.")
 
         encrypted_payload = self.cipher.encrypt(original_text.encode("utf-8"))
-
         await client.set(name=token_id, value=encrypted_payload, ex=self.ttl_seconds)
 
     async def retrieve_mapping(self, token_id: str) -> str | None:
