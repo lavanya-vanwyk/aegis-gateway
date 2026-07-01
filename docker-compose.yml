@@ -1,21 +1,25 @@
 services:
-  redis-vault:
+  api:
+    build: .
+    container_name: aegis_gateway_api
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - REDIS_HOST=redis_vault 
+    depends_on:
+      - redis_vault
+    networks:
+      - aegis_net
+
+  redis_vault:
     image: redis:7.2-alpine
     container_name: gateway_redis_vault
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    restart: always                         # Ensures the database container starts first
+    command: redis-server --save "" --appendonly no
+    networks:
+      - aegis_net
 
-  # db:
-  #   image: postgres:15-alpine         # Pulls a pre-built image from Docker Hub
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data # Links to a persistent named volume
-  #   environment:
-  #     POSTGRES_USER: user
-  #     POSTGRES_PASSWORD: password
-  #     POSTGRES_DB: myapp
-
-volumes:
-  redis_data:                      # Declares the named volume for database persistence
+networks:
+  aegis_net:
+    driver: bridge
