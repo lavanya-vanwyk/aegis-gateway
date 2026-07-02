@@ -12,10 +12,10 @@ jobs:
 
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      uses: docker/setup-buildx-action@v4
 
     - name: Cache Docker Layers
       uses: actions/cache@v4
@@ -28,7 +28,7 @@ jobs:
     - name: Install and Start Ollama on Runner Host
       run: |
         curl -fsSL https://ollama.com/install.sh | sh
-        
+
         # start ollama and WAIT
         OLLAMA_HOST=0.0.0.0 ollama serve &
         sleep 5
