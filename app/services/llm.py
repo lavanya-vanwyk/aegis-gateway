@@ -1,5 +1,6 @@
 from openai import AsyncOpenAI
 from app.core.config import settings
+import os
 
 
 class LLMService:
@@ -13,6 +14,7 @@ class LLMService:
             "You MUST preserve these tokens exactly as they appear in your response. "
             "Do not modify, translate, or strip the brackets from the tokens under any circumstances."
         )
+        self.model_name = os.getenv("LLM_MODEL", "llama3")
 
     async def generate_response(self, prompt: str) -> str:
         """
@@ -20,7 +22,7 @@ class LLMService:
         """
         try:
             response = await self.client.chat.completions.create(
-                model="llama3",
+                model=self.model_name,
                 messages=[
                     {"role": "system", "content": self.system_prompt},
                     {"role": "user", "content": prompt},
