@@ -28,7 +28,7 @@ jobs:
 
     - name: Pull Model Into Docker Container
       run: |
-        docker compose exec -T gateway_llm ollama pull tinyllama
+        docker compose exec -T ollama_server ollama pull tinyllama
 
     - name: Run Integration Tests
       run: |
