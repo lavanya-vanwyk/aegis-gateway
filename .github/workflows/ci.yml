@@ -1,0 +1,54 @@
+name: Aegis Gateway CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  integration-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Cache Docker Layers
+      uses: actions/cache@v4
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-
+
+    - name: Install and Start Ollama on Runner Host
+      run: |
+        curl -fsSL https://ollama.com/install.sh | sh
+        
+        # start ollama and WAIT
+        OLLAMA_HOST=0.0.0.0 ollama serve &
+        sleep 5
+
+    - name: Pre-pull LLM Model
+      run: |
+        ollama pull llama3
+
+    - name: Build and Spin Up Stack via Docker Compose
+      run: |
+        
+        touch .env
+        docker compose up -d --build
+
+    - name: Run Integration Tests
+      run: |
+        docker exec aegis_gateway_api pytest -v
+
+    - name: Teardown Stack
+      if: always()
+      run: |
+        docker compose down -v
+
