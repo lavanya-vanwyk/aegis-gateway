@@ -25,23 +25,14 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-buildx-
 
-    - name: Install and Start Ollama on Runner Host
+    - name: Build and Spin Up Stack
       run: |
-        curl -fsSL https://ollama.com/install.sh | sh
-
-        # start ollama and WAIT
-        OLLAMA_HOST=0.0.0.0 ollama serve &
-        sleep 5
+        touch .env
+        docker compose up -d --build
 
     - name: Pre-pull LLM Model
       run: |
-        ollama pull llama3
-
-    - name: Build and Spin Up Stack via Docker Compose
-      run: |
-        
-        touch .env
-        docker compose up -d --build
+        docker exec gateway_llm ollama pull llama3
 
     - name: Run Integration Tests
       run: |
