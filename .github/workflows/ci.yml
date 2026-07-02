@@ -28,11 +28,11 @@ jobs:
 
     - name: Pull Model Into Docker Container
       run: |
-        docker exec gateway_llm ollama pull tinyllama
+        docker exec -T gateway_llm ollama pull tinyllama
 
     - name: Run Integration Tests
       run: |
-        docker exec aegis_gateway_api pytest -v
+        docker exec -T aegis_gateway_api pytest -v
 
     - name: Teardown Stack
       if: always()
