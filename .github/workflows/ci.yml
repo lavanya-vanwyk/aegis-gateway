@@ -32,7 +32,7 @@ jobs:
 
     - name: Run Integration Tests
       run: |
-        docker compose exec -T aegis_gateway_api pytest -v
+        docker compose exec -T api pytest -v
 
     - name: Teardown Stack
       if: always()
