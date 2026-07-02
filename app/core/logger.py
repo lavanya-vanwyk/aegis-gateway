@@ -1,38 +1,22 @@
 import logging
-import sys
 import json
 from datetime import datetime, timezone
-
-
-class JSONAuditFormatter(logging.Formatter):
-    """
-    Custom formatter to enforce structured JSON logs for audit trails.
-    """
-
-    def format(self, record):
-        log_record = {
-            "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
-            "level": record.levelname,
-            "event": record.getMessage(),
-        }
-
-        if hasattr(record, "audit_data"):
-            log_record.update(record.audit_data)
-
-        return json.dumps(log_record)
+from loguru import logger
+import sys
 
 
 def setup_audit_logger():
-    logger = logging.getLogger("aegis_audit")
-    logger.setLevel(logging.INFO)
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(JSONAuditFormatter())
+    logger.remove()
 
-    if not logger.handlers:
-        logger.addHandler(handler)
-
-    logger.propagate = False
-
+    logger.add(sys.stdout, format="{message}", level="INFO", serialize=True)
+    logger.add(
+        "audit_log",
+        format="{message}",
+        level="INFO",
+        serialize=True,
+        rotation="10 MB",
+        retention="30 days",
+    )
     return logger
 
 
