@@ -22,7 +22,7 @@ jobs:
         
         echo "LLM_MODEL=tinyllama" >> .env
         echo "LLM_API_KEY=fake_api_key" >> .env
-        echo "VAULT_ENCRYPTION_KEY=32_character_base64_string_placeholder=" >> .env 
+        echo "VAULT_ENCRYPTION_KEY=YGoYVJ4gpZdWAabVclBkCyn-dM_57aIQMzJgx05k_ZI=" >> .env 
         docker compose up -d --build
         
         sleep 10
