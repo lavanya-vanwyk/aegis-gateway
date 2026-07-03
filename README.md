@@ -8,6 +8,8 @@ A high-performance, Zero-Trust Privacy Gateway designed to secure Large Language
 
 By pairing **Microsoft Presidio** for data sanitization with **Ollama** for localized, offline model inference, the Aegis Gateway enforces strict data sovereignty.
 
+>Aegis refers to the protection, backing, or sponsorship of a particular person, organization, or governing body. You will most often hear it used in the formal phrase "under the aegis of," which means an event or project is being supported or guided by an authoritative entity
+
 ## Architecture & Data Flow
 The gateway acts as an invisible reverse proxy, processing requests at the speed of the underlying ASGI server.
 `Client Request` ➔ `Raw Prompt` 
@@ -27,23 +29,29 @@ The entire ecosystem is containerized for deployment.
 ```bash   git clone https://github.com/yourusername/aegis-gateway.git   cd aegis-gateway```
 
 2. **Spin up the Zero-Trust network:**
- ```bash   docker compose up -d --build      ```
-3. **Pull the required local LLM (First run only):**
-```bash   docker compose exec ollama_server ollama pull llama3      ```
-4. **Run the integration test suite:**  
-```bash   docker compose exec api pytest -v      ```
+   
+ ```bash   docker compose up -d --build ```
+ 
+4. **Pull the required local LLM (First run only):**
+   
+```bash   docker compose exec ollama_server ollama pull llama3 ```
+
+6. **Run the integration test suite:**
+   
+```bash   docker compose exec api pytest -v```
+
 ## Features & Roadmap
 ### Core Infrastructure (Completed):
-* [x]**Zero-Trust PII Masking:** Microsoft Presidio integration for real-time sanitization. 
-* [x]**Containerized Microservices:** Isolated Docker bridge network for API, Redis, and LLM. 
-* [x]**Local AI Engine:** Offline inference via containerized Ollama. * 
-* [x]**Forensic Observability:** Pure ASGI middleware logging structured JSON via Loguru for SIEM ingestion. 
-* [x]**Automated CI/CD:** GitHub Actions pipeline leveraging lightweight models (tinyllama) for integration testing.
+* [x] **Zero-Trust PII Masking:** Microsoft Presidio integration for real-time sanitization. 
+* [x] **Containerized Microservices:** Isolated Docker bridge network for API, Redis, and LLM. 
+* [x] **Local AI Engine:** Offline inference via containerized Ollama. * 
+* [x] **Forensic Observability:** Pure ASGI middleware logging structured JSON via Loguru for SIEM ingestion. 
+* [x] **Automated CI/CD:** GitHub Actions pipeline leveraging lightweight models (tinyllama) for integration testing.
 
 ### Future Enhancements (Backlog) 
-* [ ]**Performance Benchmarking:** Implement an automated Locust or wrk load-testing suite to formally benchmark ASGI middleware throughput and measure the exact ms overhead of the privacy layer against direct LLM calls.
+* [ ] **Performance Benchmarking:** Implement an automated Locust or wrk load-testing suite to formally benchmark ASGI middleware throughput and measure the exact ms overhead of the privacy layer against direct LLM calls.
 * [ ] **Advanced Gateway Hardening:**  
-* [ ]**Rate Limiting:** Implement a Redis-backed sliding-window token bucket algorithm to prevent DoS attacks on the LLM engine.
-* [ ]**Prompt Injection Defense:** Integrate an adversarial detection layer to sanitize malicious instructions attempting to bypass system prompts.
+* [ ] **Rate Limiting:** Implement a Redis-backed sliding-window token bucket algorithm to prevent DoS attacks on the LLM engine.
+* [ ] **Prompt Injection Defense:** Integrate an adversarial detection layer to sanitize malicious instructions attempting to bypass system prompts.
 
 *Built with a focus on defensive engineering, and strict data governance.*
