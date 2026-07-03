@@ -11,11 +11,11 @@ By pairing **Microsoft Presidio** for data sanitization with **Ollama** for loca
 ## Architecture & Data Flow
 The gateway acts as an invisible reverse proxy, processing requests at the speed of the underlying ASGI server.
 `Client Request` ➔ `Raw Prompt` 
-**1. ASGI Interception & Audit:** Pure ASGI middleware (Loguru-backed) intercepts the stream with near-zero latency, generating a forensic `request_id`. 
-**2. PII Tokenization (Presidio):** Sensitive entities (names, emails, IPs) are detected and swapped for encrypted tokens. 
-**3. Zero-Trust Storage (Redis):** The mapping of tokens to actual PII is temporarily stored in an isolated, internal-only Redis vault. 
-**4. Local Inference (Ollama):** The sanitized prompt is routed to a locally hosted LLM container. The model generates a response based *only* on anonymized data. 
-**5. Detokenization:** The gateway retrieves the mapping from Redis, rehydrates the LLM's response with the original PII, and securely destroys the Redis entry. `Sanitized Response` -> `Client`
+* **1. ASGI Interception & Audit:** Pure ASGI middleware (Loguru-backed) intercepts the stream with near-zero latency, generating a forensic `request_id`. 
+* **2. PII Tokenization (Presidio):** Sensitive entities (names, emails, IPs) are detected and swapped for encrypted tokens. 
+* **3. Zero-Trust Storage (Redis):** The mapping of tokens to actual PII is temporarily stored in an isolated, internal-only Redis vault. 
+* **4. Local Inference (Ollama):** The sanitized prompt is routed to a locally hosted LLM container. The model generates a response based *only* on anonymized data. 
+* **5. Detokenization:** The gateway retrieves the mapping from Redis, rehydrates the LLM's response with the original PII, and securely destroys the Redis entry. `Sanitized Response` -> `Client`
 
 ## Getting Started
 The entire ecosystem is containerized for deployment.
