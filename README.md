@@ -55,3 +55,4 @@ The entire ecosystem is containerized for deployment.
 * [ ] **Prompt Injection Defense:** Integrate an adversarial detection layer to sanitize malicious instructions attempting to bypass system prompts.
 
 *Built with a focus on defensive engineering, and strict data governance.*
+*WTC-KL8Y5Y8K*
