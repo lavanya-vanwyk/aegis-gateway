@@ -36,7 +36,7 @@ async def test_mask_za_id_number(masking_service):
     result = await masking_service.mask_text(text)
 
     # assert using 'in' to account for UUIDs
-    assert "<ZA_ID_NUMBER_" in result["anonymized_text"]
+    assert "[ZA_ID_NUMBER_" in result["anonymized_text"]
     assert "9201015009087" not in result["anonymized_text"]
     assert result["entities_masked_count"] == 1
 
@@ -51,7 +51,7 @@ async def test_mask_za_phone_number(masking_service):
 
     for text in formats:
         result = await masking_service.mask_text(text)
-        assert "<ZA_PHONE_NUMBER_" in result["anonymized_text"]
+        assert "[ZA_PHONE_NUMBER_" in result["anonymized_text"]
         assert result["entities_masked_count"] == 1
 
 
@@ -60,7 +60,7 @@ async def test_mask_za_passport(masking_service):
     text = "Passport number: A12345678"
     result = await masking_service.mask_text(text)
 
-    assert "<ZA_PASSPORT_NUM_" in result["anonymized_text"]
+    assert "[ZA_PASSPORT_NUM_" in result["anonymized_text"]
     assert result["entities_masked_count"] == 1
 
 
@@ -69,5 +69,5 @@ async def test_mask_za_tax_number(masking_service):
     text = "SARS Tax Ref: 1234567890"
     result = await masking_service.mask_text(text)
 
-    assert "<ZA_TAX_NUMBER_" in result["anonymized_text"]
+    assert "[ZA_TAX_NUMBER_" in result["anonymized_text"]
     assert result["entities_masked_count"] == 1
