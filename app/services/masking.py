@@ -148,7 +148,7 @@ class PrivacyMaskingService:
 
             # generate a unique token for each
             unique_id = uuid.uuid4().hex[:6]
-            token_id = f"<{match.entity_type}_{unique_id}>"
+            token_id = f"[{match.entity_type}_{unique_id}]"
 
             await self.vault.store_mapping(
                 token_id=token_id, original_text=original_value
@@ -171,8 +171,7 @@ class PrivacyMaskingService:
         if not text:
             return text
 
-        token_pattern = r"<[A-Z_]+_[a-f0-9]{6}>"
-
+        token_pattern = r"\[[A-Z_]+_[a-f0-9]{6}\]"
         unique_tokens = set(re.findall(token_pattern, text))
         rehydrated_text = text
 

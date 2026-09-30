@@ -9,10 +9,12 @@ class LLMService:
             base_url="http://ollama_server:11434/v1", api_key="ollama"
         )
         self.system_prompt = (
-            "You are a highly capable AI assistant securely processing data behind a privacy gateway. "
-            "The user prompts you receive will contain anonymized tokens in the format <ENTITY_TYPE_abc123>. "
-            "You MUST preserve these tokens exactly as they appear in your response. "
-            "Do not modify, translate, or strip the brackets from the tokens under any circumstances."
+            "You are a helpful assistant responding to a user. "
+            "The user's prompt contains privacy placeholders enclosed in square brackets. "
+            "You MUST incorporate those exact bracketed placeholders precisely as they "
+            "appear in the prompt when referring to the user. "
+            "CRITICAL: Do NOT invent, mimic, or generate your own bracketed placeholders "
+            "for your own name, email, or signature. Write normally for yourself."
         )
         self.model_name = os.getenv("LLM_MODEL", "llama3")
 
@@ -27,7 +29,7 @@ class LLMService:
                     {"role": "system", "content": self.system_prompt},
                     {"role": "user", "content": prompt},
                 ],
-                temperature=0.7,
+                temperature=0.4,
                 max_tokens=500,
             )
 

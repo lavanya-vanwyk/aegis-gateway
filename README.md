@@ -36,6 +36,10 @@ The entire ecosystem is containerized for deployment.
    
 ```bash   docker compose exec ollama_server ollama pull llama3 ```
 
+If you have space and memory constraints, or want a smaller local model
+
+```bash   docker compose exec ollama_server ollama pull tinyllama```
+
 6. **Run the integration test suite:**
    
 ```bash   docker compose exec api pytest -v```

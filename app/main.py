@@ -42,4 +42,4 @@ def health_check():
         "status": "healthy",
         "environment": settings.ENVIRONMENT,
         "redis_connected": redis_manager.client is not None,
-    }
+    }  # type: ignore
